@@ -1,0 +1,16 @@
+# Kit de lançamento / copy interno de marketing — não faz parte do plugin instalável
+press-kit/
+
+# Saídas geradas em teste
+*-workspace/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# NÃO ignorar vendor/ — os binários do Tesseract são bundlados de propósito (CSP do MV3).

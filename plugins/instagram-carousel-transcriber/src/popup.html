@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Transcritor de Carrossel</h1>
+      <p class="sub">Lê os slides via OCR local e baixa um <code>.md</code>.</p>
+
+      <button id="run" type="button">Transcrever carrossel</button>
+
+      <div id="progress" class="hidden">
+        <div class="bar"><div id="fill"></div></div>
+        <p id="status" class="status"></p>
+      </div>
+
+      <p id="error" class="error hidden"></p>
+    </main>
+
+    <!-- Ordem importa: Tesseract global → wrappers → orquestrador. -->
+    <script src="../vendor/tesseract.min.js"></script>
+    <script src="ocr.js"></script>
+    <script src="markdown.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
