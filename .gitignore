@@ -14,3 +14,14 @@ Thumbs.db
 *.swp
 
 # NÃO ignorar vendor/ — os binários do Tesseract são bundlados de propósito (CSP do MV3).
+# === Segredos / credenciais (reforço de segurança) ===
+.env
+.env.*
+*.local.json
+settings.local.json
+*.pem
+*.key
+*_rsa
+*.p12
+secrets/
+.claude/settings.local.json
