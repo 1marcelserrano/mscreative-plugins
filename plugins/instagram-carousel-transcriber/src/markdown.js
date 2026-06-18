@@ -6,10 +6,12 @@ function todayISO() {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
-function buildMarkdown({ author, url, caption }, slides) {
+function buildMarkdown({ author, url, caption }, slides, engine) {
   const lines = [];
   lines.push(`# Transcrição — Carrossel @${author || "desconhecido"}`);
-  lines.push(`> Fonte: ${url} · Slides: ${slides.length} · Gerado: ${todayISO()}`);
+  lines.push(
+    `> Fonte: ${url} · Slides: ${slides.length} · Motor: ${engine || "Tesseract"} · Gerado: ${todayISO()}`
+  );
   lines.push("");
 
   slides.forEach((text, i) => {

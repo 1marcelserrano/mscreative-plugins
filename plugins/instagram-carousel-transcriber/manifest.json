@@ -2,12 +2,17 @@
   "manifest_version": 3,
   "name": "Transcritor de Carrossel do Instagram",
   "description": "Lê todos os slides de um carrossel do Instagram via OCR local e gera um único .md. Tudo no navegador.",
-  "version": "0.1.0",
-  "permissions": ["activeTab", "downloads"],
+  "version": "0.2.0",
+  "permissions": ["activeTab", "downloads", "storage"],
+  "options_page": "src/options.html",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
   "host_permissions": [
     "https://www.instagram.com/*",
     "https://*.cdninstagram.com/*",
-    "https://*.fbcdn.net/*"
+    "https://*.fbcdn.net/*",
+    "https://api.anthropic.com/*"
   ],
   "content_scripts": [
     {

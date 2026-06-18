@@ -62,23 +62,31 @@ async function run() {
     const post = await collectFromTab(tab.id);
     if (!post || post.error) throw new Error(post ? post.error : "Sem resposta da página.");
 
+    const cfg = await chrome.storage.local.get({ useClaude: false, apiKey: "", model: "claude-haiku-4-5" });
+    const claudeMode = cfg.useClaude && cfg.apiKey;
+    if (cfg.useClaude && !cfg.apiKey) {
+      throw new Error("Modo Claude ligado, mas sem chave. Configure nas opções da extensão.");
+    }
+    const engineLabel = claudeMode ? `Claude (${cfg.model})` : "Tesseract (OCR local)";
+    const engineShort = claudeMode ? "Claude" : "OCR";
+
     const total = post.imageUrls.length;
     const slides = [];
 
     for (let i = 0; i < total; i++) {
-      setStatus(`OCR no slide ${i + 1} de ${total}…`);
-      const text = await ocrImage(post.imageUrls[i], (p) => {
-        // Progresso combinado: slides já feitos + fração do atual.
-        setProgress((i + p) / total);
-      });
+      setStatus(`${engineShort} no slide ${i + 1} de ${total}…`);
+      const onProgress = (p) => setProgress((i + p) / total); // slides feitos + fração do atual
+      const text = claudeMode
+        ? await claudeImage(post.imageUrls[i], cfg, onProgress)
+        : await ocrImage(post.imageUrls[i], onProgress);
       slides.push(text);
     }
 
-    await terminateOcr();
+    if (!claudeMode) await terminateOcr();
 
     setProgress(1);
     setStatus("Montando o arquivo…");
-    const md = buildMarkdown(post, slides);
+    const md = buildMarkdown(post, slides, engineLabel);
     downloadMarkdown(md, filenameFor(post.shortcode));
     setStatus(`Pronto. ${total} slide(s) transcrito(s).`);
   } catch (e) {

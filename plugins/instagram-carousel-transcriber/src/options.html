@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="options">
+      <h1>Opções</h1>
+
+      <label class="row">
+        <input id="useClaude" type="checkbox" />
+        <span>Modo Claude (OCR via visão do Claude em vez do Tesseract local)</span>
+      </label>
+
+      <p class="hint">
+        O modo Claude lê texto estilizado e fotos muito melhor, mas envia cada slide
+        pra API da Anthropic e consome a sua chave. O padrão (Tesseract) roda 100% local.
+      </p>
+
+      <label class="field">
+        Chave da API Anthropic
+        <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off" />
+      </label>
+
+      <label class="field">
+        Modelo
+        <select id="model">
+          <option value="claude-haiku-4-5">Haiku 4.5 — mais barato (~US$ 0,03/carrossel)</option>
+          <option value="claude-opus-4-8">Opus 4.8 — melhor qualidade (~US$ 0,15/carrossel)</option>
+        </select>
+      </label>
+
+      <button id="save" type="button">Salvar</button>
+      <p id="saved" class="status hidden">Salvo.</p>
+    </main>
+
+    <script src="options.js"></script>
+  </body>
+</html>

@@ -57,20 +57,47 @@ function collectVisibleImages(scope, byKey) {
   }
 }
 
-function getAuthor(scope) {
-  // Primeiro link de perfil no header do article: /<handle>/
-  for (const a of scope.querySelectorAll('header a[href^="/"]')) {
-    const handle = a.getAttribute("href").replace(/\//g, "");
-    if (handle && !handle.includes("explore")) return handle;
+// Rotas do IG que parecem perfil (/x/) mas não são.
+const RESERVED_HANDLE = /^(explore|reels?|p|stories|direct|accounts|about|legal|api|developer|directory|web|challenge|ads|business|help)$/i;
+
+// Primeiro handle de perfil (/handle/) dentro de root, ignorando rotas reservadas.
+function firstHandle(root) {
+  for (const a of root.querySelectorAll('a[href^="/"]')) {
+    const m = a.getAttribute("href").match(/^\/([A-Za-z0-9._]+)\/?$/);
+    if (m && !RESERVED_HANDLE.test(m[1])) return m[1];
   }
-  const m = scope.querySelector('a[href^="/"]');
-  return m ? m.getAttribute("href").replace(/\//g, "") : "";
+  return "";
+}
+
+function metaContent(prop) {
+  const el = document.querySelector(`meta[property="${prop}"]`);
+  return (el && el.content) || "";
+}
+
+function getAuthor(scope) {
+  // og:description começa com o USERNAME ("blankschoolbr on <data>:"); og:title traz o
+  // nome de EXIBIÇÃO ("Blank on Instagram"). Pro @handle queremos o username → description 1º.
+  // Remove prefixo "123 curtidas, 4 comentários - " quando presente.
+  for (const prop of ["og:description", "og:title"]) {
+    const c = metaContent(prop).replace(/^[\d.,\s]*\b(likes?|curtidas?|comments?|coment[áa]rios?)\b.*?[-–]\s*/i, "");
+    const m = c.match(/^([A-Za-z0-9._]+)\s+on\b/);
+    if (m) return m[1];
+  }
+  // Fallback: link de perfil dentro do escopo (nunca a página inteira → navbar).
+  return firstHandle(scope.querySelector("header") || scope) || "";
 }
 
 function getCaption(scope) {
   // Legenda costuma ser o primeiro h1 dentro do article. Complemento, não bloqueante.
   const h1 = scope.querySelector("h1");
-  return h1 ? h1.textContent.trim() : "";
+  if (h1 && h1.textContent.trim()) return h1.textContent.trim();
+  // Fallback: og:description = `handle on <data>: "legenda".` — pega só o miolo.
+  const og = metaContent("og:description");
+  if (og) {
+    const m = og.match(/:\s*["“”](.+)["“”]\.?\s*$/);
+    return (m ? m[1] : og).trim();
+  }
+  return "";
 }
 
 async function transcribeCarousel() {
