@@ -1,0 +1,3 @@
+# Tesseract.js e outros binários embarcados não são código do projeto.
+# Marcados como vendored pra não distorcer as estatísticas de linguagem do repo.
+plugins/*/vendor/** linguist-vendored
