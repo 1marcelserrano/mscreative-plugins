@@ -6,6 +6,11 @@ function setStatus(text, tone = 'info') {
   statusLine.dataset.tone = tone;
 }
 
+chrome.runtime.onMessage.addListener((message) => {
+  if (message?.type !== 'fpc:progress') return;
+  setStatus(`Tela ${message.atual} de ${message.total}...`);
+});
+
 startButton.addEventListener('click', async () => {
   startButton.disabled = true;
   setStatus('Preparando...');

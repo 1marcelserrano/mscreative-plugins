@@ -27,5 +27,6 @@
       FPC.restore();
       return { ok: true };
     },
+    'fpc:step': (message) => FPC.step(message),
   };
 })();
