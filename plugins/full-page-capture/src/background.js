@@ -1,6 +1,7 @@
 import { buildFilename } from './lib/filename.mjs';
 import { scoreCandidates } from './lib/score-scrollers.mjs';
 import { planStitch } from './lib/plan-stitch.mjs';
+import { chooseScale, MAX_DIMENSION } from './lib/canvas-limits.mjs';
 
 const OFFSCREEN_URL = 'src/offscreen.html';
 const MAX_TELAS = 60;
@@ -132,8 +133,21 @@ async function handleStart(tabId) {
     await chrome.tabs.sendMessage(tabId, { type: 'fpc:restore' }).catch(() => {});
   }
 
+  if (paradas.length === 0) throw new Error('Não consegui fotografar nenhuma tela.');
+
   try {
-    const plan = planStitch(paradas, { dpr, scale: 1 });
+    const ultima = paradas[paradas.length - 1];
+    const alturaTotal = ultima.scrollTop + ultima.rect.height;
+    const { scale, truncar, aviso } = chooseScale({
+      width: ultima.rect.width,
+      height: alturaTotal,
+      dpr,
+    });
+    avisoTamanho = aviso;
+
+    const plan = planStitch(paradas, { dpr, scale });
+    if (truncar) plan.height = Math.min(plan.height, MAX_DIMENSION);
+
     const resposta = await chrome.runtime.sendMessage({
       alvo: 'offscreen',
       type: 'fpc:off:finish',
@@ -146,5 +160,6 @@ async function handleStart(tabId) {
   }
 
   const limite = truncado ? ` (parei em ${MAX_TELAS} telas — a página continua além disso)` : '';
-  return { message: `Salvo: ${filename}${limite}` };
+  const extra = avisoTamanho ? ` ${avisoTamanho}` : '';
+  return { message: `Salvo: ${filename}${limite}${extra}` };
 }
