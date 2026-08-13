@@ -4,6 +4,8 @@ import { scoreCandidates } from './lib/score-scrollers.mjs';
 const CONTENT_FILES = [
   'src/content/scroller.js',
   'src/content/overlay.js',
+  'src/content/freeze.js',
+  'src/content/settle.js',
   'src/content/main.js',
 ];
 

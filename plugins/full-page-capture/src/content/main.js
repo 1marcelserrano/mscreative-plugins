@@ -19,5 +19,13 @@
       viewport: { width: innerWidth, height: innerHeight },
     }),
     'fpc:confirm': (message) => FPC.confirm(message.candidates),
+    'fpc:freeze': () => {
+      FPC.freeze();
+      return { ok: true };
+    },
+    'fpc:restore': () => {
+      FPC.restore();
+      return { ok: true };
+    },
   };
 })();
