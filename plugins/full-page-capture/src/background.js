@@ -1,7 +1,11 @@
 import { buildFilename } from './lib/filename.mjs';
 import { scoreCandidates } from './lib/score-scrollers.mjs';
 
-const CONTENT_FILES = ['src/content/scroller.js', 'src/content/main.js'];
+const CONTENT_FILES = [
+  'src/content/scroller.js',
+  'src/content/overlay.js',
+  'src/content/main.js',
+];
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type !== 'fpc:start') return false;
@@ -31,7 +35,9 @@ async function handleStart(tabId) {
   const { descriptors } = await chrome.tabs.sendMessage(tabId, { type: 'fpc:collect' });
   const ranked = scoreCandidates(descriptors);
   if (ranked.length === 0) throw new Error('Não achei nada que role nesta página.');
-  const alvo = ranked[0];
+  const escolha = await chrome.tabs.sendMessage(tabId, { type: 'fpc:confirm', candidates: ranked });
+  if (escolha?.cancelado) return { message: 'Cancelado.' };
+  const escolhido = ranked.find((c) => c.id === escolha.id);
   const name = buildFilename({ url: tab.url, title: tab.title, date: new Date() });
-  return { message: `Alvo: ${alvo.label} — sairia como ${name}` };
+  return { message: `Alvo: ${escolhido.label} — sairia como ${name}` };
 }

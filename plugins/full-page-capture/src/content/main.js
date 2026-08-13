@@ -18,5 +18,6 @@
       dpr: devicePixelRatio,
       viewport: { width: innerWidth, height: innerHeight },
     }),
+    'fpc:confirm': (message) => FPC.confirm(message.candidates),
   };
 })();
