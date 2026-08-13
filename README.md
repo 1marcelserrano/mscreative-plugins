@@ -15,6 +15,7 @@ O primeiro plugin transcreve um carrossel inteiro do Instagram — os 15 slides 
 | Plugin | Versão | O que faz | Tipo |
 |---|---|---|---|
 | [`instagram-carousel-transcriber`](./plugins/instagram-carousel-transcriber/) | v0.2.0 | Lê todos os slides de um carrossel do Instagram e baixa um `.md` com o texto de cada slide + a legenda. OCR local grátis por padrão; modo Claude opcional pra qualidade alta. | Extensão Chrome (MV3) |
+| [`full-page-capture`](./plugins/full-page-capture/) | v0.1.0 | Fotografa a página inteira num PNG, inclusive quando quem rola é um painel interno. Cabeçalho fixo aparece uma vez, carregamento preguiçoso não deixa buraco. | Extensão Chrome (MV3) |
 
 ## Como funciona
 
@@ -52,6 +53,16 @@ Extensão Chrome (Manifest V3, MIT) que percorre um carrossel aberto na sua aba 
 - **Padrão: OCR 100% local** com [Tesseract.js](https://tesseract.projectnaptha.com/) (`por+eng`). Nenhuma imagem sai da máquina. Sem API paga, sem backend.
 - **Modo Claude (opcional):** liga a visão do [Claude](https://www.anthropic.com/claude) com a sua própria chave pra ler texto estilizado e fotos muito melhor. ~US$ 0,03 por carrossel no Haiku. Como ligar, custo e privacidade: [README do plugin](./plugins/instagram-carousel-transcriber/#modo-claude-opcional).
 - Pasta auto-contida, pronta pra listagem na Chrome Web Store.
+
+### `full-page-capture`
+
+Extensão Chrome (Manifest V3, MIT) que captura a página inteira num PNG e funciona onde as outras falham. Capturador de página inteira já existe e é grátis — este existe pelos três casos que os outros erram:
+
+- **Acha quem rola de verdade.** Em Gmail, Notion e painéis administrativos, quem rola é um `div` dentro da página, não a janela. A extensão detecta o painel, destaca ele na tela e pergunta antes de capturar.
+- **Cabeçalho fixo aparece uma vez.** Barra de cookies e widget de chat não se repetem ao longo da imagem.
+- **Espera o conteúdo carregar** a cada parada, então carregamento preguiçoso e lista virtualizada não deixam buraco branco.
+
+100% local, sem servidor, sem analytics e sem `host_permissions` — nada roda em site nenhum enquanto você não clica no ícone. Detalhes e limites conhecidos: [README do plugin](./plugins/full-page-capture/).
 
 ## FAQ
 

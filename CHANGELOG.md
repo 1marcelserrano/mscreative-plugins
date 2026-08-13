@@ -4,6 +4,19 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · Versiona
 
 Cada plugin versiona no próprio `manifest.json`. As entradas abaixo são por plugin.
 
+## full-page-capture
+
+### [0.1.0] — 2026-08-13
+
+#### Adicionado
+- Primeira versão. Captura de página inteira por costura de rolagem: cada tela é fotografada de verdade, nada é reconstruído a partir do DOM.
+- **Detecta o container que realmente rola** e confirma o alvo antes de capturar. Em Gmail, Notion e painéis administrativos, quem rola é um `div`, não a janela.
+- **Elementos fixos e grudentos entram só no primeiro quadro.** Cabeçalho aparece uma vez; barra de cookies e widget de chat não se repetem ao longo da imagem.
+- **Espera o conteúdo assentar a cada parada** — imagens decodificadas e DOM em silêncio, com teto de tempo.
+- Costura posicionada pela rolagem efetiva, não pela pretendida: página com `scroll-snap` ou que trava no fim continua alinhada.
+- Limite de 60 telas e limite de canvas do navegador com aviso explícito. Truncamento nunca é silencioso.
+- Três funções puras (plano da costura, pontuação de candidatos, nome do arquivo) cobertas por `node --test`, sem nenhuma dependência.
+
 ## instagram-carousel-transcriber
 
 ### [0.2.0] — 2026-06-18
