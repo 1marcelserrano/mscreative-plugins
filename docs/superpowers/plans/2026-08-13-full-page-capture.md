@@ -91,7 +91,7 @@ test('url inválida cai em pagina', () => {
 - [ ] **Step 2: Rodar o teste e confirmar que falha**
 
 ```bash
-cd ~/Code/mscreative-plugins && node --test plugins/full-page-capture/test/
+cd ~/Code/mscreative-plugins && node --test "plugins/full-page-capture/test/**/*.test.mjs"
 ```
 
 Esperado: FAIL com `Cannot find module .../src/lib/filename.mjs`.
@@ -140,7 +140,7 @@ export function buildFilename({ url, title, date }) {
 - [ ] **Step 4: Rodar o teste e confirmar que passa**
 
 ```bash
-cd ~/Code/mscreative-plugins && node --test plugins/full-page-capture/test/
+cd ~/Code/mscreative-plugins && node --test "plugins/full-page-capture/test/**/*.test.mjs"
 ```
 
 Esperado: `# pass 6`, `# fail 0`.
@@ -288,7 +288,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: node --test plugins/full-page-capture/test/
+      - run: node --test "plugins/full-page-capture/test/**/*.test.mjs"
 ```
 
 - [ ] **Step 9: Commit**
@@ -429,7 +429,7 @@ export function scoreCandidates(descriptors) {
 - [ ] **Step 4: Rodar os testes e confirmar que passam**
 
 ```bash
-cd ~/Code/mscreative-plugins && node --test plugins/full-page-capture/test/
+cd ~/Code/mscreative-plugins && node --test "plugins/full-page-capture/test/**/*.test.mjs"
 ```
 
 Esperado: `# fail 0`.
@@ -569,7 +569,7 @@ export function planStitch(stops, { dpr = 1, scale = 1 } = {}) {
 - [ ] **Step 4: Rodar os testes e confirmar que passam**
 
 ```bash
-cd ~/Code/mscreative-plugins && node --test plugins/full-page-capture/test/
+cd ~/Code/mscreative-plugins && node --test "plugins/full-page-capture/test/**/*.test.mjs"
 ```
 
 Esperado: `# fail 0`.
@@ -1766,7 +1766,7 @@ export function chooseScale({ width, height, dpr = 1 }) {
 - [ ] **Step 4: Rodar os testes e confirmar que passam**
 
 ```bash
-cd ~/Code/mscreative-plugins && node --test plugins/full-page-capture/test/
+cd ~/Code/mscreative-plugins && node --test "plugins/full-page-capture/test/**/*.test.mjs"
 ```
 
 Esperado: `# fail 0`.
@@ -1957,7 +1957,7 @@ Em `CHANGELOG.md`, adicionar no topo da lista de versões:
 - [ ] **Step 6: Rodar os testes uma última vez**
 
 ```bash
-cd ~/Code/mscreative-plugins && node --test plugins/full-page-capture/test/
+cd ~/Code/mscreative-plugins && node --test "plugins/full-page-capture/test/**/*.test.mjs"
 ```
 
 Esperado: `# fail 0`.

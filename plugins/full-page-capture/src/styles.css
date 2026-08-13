@@ -1,0 +1,30 @@
+body {
+  width: 260px;
+  margin: 0;
+  padding: 16px;
+  font: 14px/1.4 system-ui, sans-serif;
+  background: #111114;
+  color: #b2a898;
+}
+button {
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  color: #111114;
+  background: #b2a898;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+#status {
+  margin: 12px 0 0;
+  min-height: 1.4em;
+  font-size: 13px;
+}
+#status[data-tone='erro'] {
+  color: #e88b6a;
+}
