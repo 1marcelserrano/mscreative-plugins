@@ -126,6 +126,7 @@ plugins/full-page-capture/
 | Página sem elemento rolável | Alvo é a janela. Página de uma tela vira captura de uma tela, sem erro. |
 | Erro em qualquer ponto | `restore()` em `finally`. A página nunca fica com o cabeçalho escondido depois de uma falha. |
 | Página protegida (`chrome://`, Web Store) | Injeção falha; popup explica que o Chrome não permite naquela página. |
+| Conteúdo principal é um elemento fixo (modal aberto, leitor embutido) | **Limite conhecido, aceito neste ciclo.** O `freeze.js` esconde todo `fixed` e `sticky` do segundo quadro em diante, então esse conteúdo some da captura. Documentado no README do plugin; tratar só se aparecer na prática. |
 
 ## 7. Verificação
 
