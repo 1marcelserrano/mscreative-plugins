@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Painel interno</title>
+    <style>
+      html, body { height: 100%; margin: 0; overflow: hidden; font: 16px/1.5 system-ui, sans-serif; }
+      .app { display: flex; height: 100vh; }
+      .lateral { width: 240px; background: #1a1a1f; color: #ddd; overflow-y: auto; padding: 16px; }
+      .conteudo { flex: 1; overflow-y: auto; padding: 24px; background: #f4f1ea; }
+      .bloco { padding: 24px; margin-bottom: 16px; background: #fff; border: 1px solid #ddd; }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <nav class="lateral" id="lateral"></nav>
+      <main class="conteudo" id="conteudo"></main>
+    </div>
+    <script>
+      const conteudo = document.getElementById('conteudo');
+      for (let i = 1; i <= 60; i++) {
+        const bloco = document.createElement('div');
+        bloco.className = 'bloco';
+        bloco.textContent = `Bloco ${i} de 60 — o painel que rola é este, não a janela.`;
+        conteudo.append(bloco);
+      }
+      const lateral = document.getElementById('lateral');
+      for (let i = 1; i <= 40; i++) {
+        const item = document.createElement('p');
+        item.textContent = `Item lateral ${i}`;
+        lateral.append(item);
+      }
+    </script>
+  </body>
+</html>

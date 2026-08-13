@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cabeçalho grudento</title>
+    <style>
+      body { margin: 0; font: 16px/1.5 system-ui, sans-serif; background: #f4f1ea; }
+      header { position: sticky; top: 0; background: #111114; color: #fff; padding: 16px; z-index: 10; }
+      .cookies { position: fixed; bottom: 0; left: 0; right: 0; background: #b4c636; color: #111; padding: 16px; }
+      .chat { position: fixed; right: 24px; bottom: 96px; width: 64px; height: 64px; border-radius: 50%; background: #a85a30; }
+      .bloco { padding: 32px; margin: 16px; background: #fff; border: 1px solid #ddd; }
+    </style>
+  </head>
+  <body>
+    <header>Cabeçalho que gruda no topo</header>
+    <main id="main"></main>
+    <div class="cookies">Aceita os cookies aí</div>
+    <div class="chat"></div>
+    <script>
+      const main = document.getElementById('main');
+      for (let i = 1; i <= 40; i++) {
+        const bloco = document.createElement('div');
+        bloco.className = 'bloco';
+        bloco.textContent = `Bloco ${i} de 40 — o cabeçalho deve aparecer uma vez só.`;
+        main.append(bloco);
+      }
+    </script>
+  </body>
+</html>

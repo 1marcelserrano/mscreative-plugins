@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Carregamento preguiçoso</title>
+    <style>
+      body { margin: 0; font: 16px/1.5 system-ui, sans-serif; background: #f4f1ea; }
+      .cartao { height: 320px; margin: 16px; background: #fff; border: 1px solid #ddd; display: grid; place-items: center; }
+      .cartao[data-carregado='sim'] { background: #dfe7c0; }
+    </style>
+  </head>
+  <body>
+    <main id="main"></main>
+    <script>
+      const main = document.getElementById('main');
+      for (let i = 1; i <= 30; i++) {
+        const cartao = document.createElement('div');
+        cartao.className = 'cartao';
+        cartao.textContent = `Cartão ${i} — vazio até entrar na tela`;
+        main.append(cartao);
+      }
+      const observador = new IntersectionObserver((entradas) => {
+        for (const entrada of entradas) {
+          if (!entrada.isIntersecting) continue;
+          const alvo = entrada.target;
+          setTimeout(() => {
+            alvo.dataset.carregado = 'sim';
+            alvo.textContent = `${alvo.textContent.split(' —')[0]} — carregado`;
+          }, 400);
+          observador.unobserve(alvo);
+        }
+      });
+      document.querySelectorAll('.cartao').forEach((c) => observador.observe(c));
+    </script>
+  </body>
+</html>
