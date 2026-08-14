@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Captura de Página Inteira",
   "description": "Fotografa a página inteira, inclusive quando quem rola é um painel interno. Sem cabeçalho repetido, sem buraco de carregamento preguiçoso.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "permissions": ["activeTab", "downloads", "scripting", "offscreen"],
   "background": {
     "service_worker": "src/background.js",

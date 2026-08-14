@@ -45,7 +45,7 @@ O plugin existe para resolver essas três. Não é um clone de conveniência.
 | D4 | Alvo detectado automaticamente, com confirmação antes de capturar | Acerta a maioria dos casos sem exigir trabalho, e nunca captura a coisa errada em silêncio. |
 | D5 | Elementos fixos aparecem no primeiro quadro e somem dos demais | A imagem fica igual à página real, só que inteira, sem a barra repetida. |
 | D6 | Costura posicionada pela rolagem **efetiva**, não pela pretendida | Página que trava no fim, que usa `scroll-snap` ou que anda menos que o pedido continua alinhada. O último quadro se sobrepõe ao anterior e cobre a sobra. |
-| D7 | Costura desenhada num documento offscreen; o plano da costura é calculado no service worker | O MV3 removeu `URL.createObjectURL` e `FileReader` do service worker. Separar *calcular* de *desenhar* mantém a aritmética testável fora do navegador. |
+| D7 | Costura desenhada num documento offscreen; o plano é calculado e o arquivo é baixado no service worker | O MV3 removeu `URL.createObjectURL` e `FileReader` do service worker, daí o offscreen. Mas **um documento offscreen só enxerga `chrome.runtime`** — `chrome.downloads` é indefinido lá. Então ele desenha e devolve a URL do blob; quem grava é o worker, que fecha o offscreen só depois que o arquivo terminou. Separar *calcular* de *desenhar* mantém a aritmética testável fora do navegador. |
 | D8 | A coleta acontece no content script; a decisão acontece no service worker | Content script não aceita módulos ES. Deixar a pontuação no worker (que é `type: "module"`) permite importar a mesma função em `node --test`. |
 | D9 | Content script injetado sob demanda, não declarado no manifesto | Nada roda em site nenhum até você clicar no ícone. Melhor para privacidade e para a revisão da Web Store. |
 | D10 | Truncamento nunca é silencioso | Bateu no limite de telas ou no limite de canvas do navegador, o plugin diz. |
@@ -92,7 +92,7 @@ plugins/full-page-capture/
 - **`lib/score-scrollers.js`** — `scoreCandidates(descriptors) → candidatos ordenados`. Função pura.
 - **`lib/plan-stitch.js`** — `planStitch(stops, {dpr, scale}) → {width, height, placements[]}`. Função pura, aritmética apenas.
 - **`lib/filename.js`** — `buildFilename({url, title, date}) → string`. Função pura.
-- **`offscreen.js`** — recebe o plano e os quadros, desenha no canvas, devolve um object URL.
+- **`offscreen.js`** — recebe o plano e os quadros, desenha no canvas, devolve a URL do blob. Não baixa e não toca em API nenhuma além de `chrome.runtime`: é o teto do que um documento offscreen enxerga.
 
 ## 5. Fluxo de captura
 
@@ -110,7 +110,7 @@ plugins/full-page-capture/
    f. o worker chama `captureVisibleTab` respeitando o intervalo mínimo e guarda o quadro.
 7. Fim do laço quando a posição efetiva para de avançar, ou no limite de telas.
 8. O worker monta o plano com `planStitch()` e manda plano e quadros ao documento offscreen.
-9. O offscreen desenha, devolve o object URL, o worker baixa com o nome de `buildFilename()`.
+9. O offscreen desenha e devolve a URL do blob. O worker baixa com o nome de `buildFilename()`, espera a gravação terminar — o ouvinte de conclusão entra **antes** do download, porque blob local grava rápido demais e o aviso chegaria primeiro — e só então fecha o offscreen, que é quem mantém a URL viva.
 10. `restore()` devolve a página ao estado original. Sempre.
 
 **Nome do arquivo:** `AAAA-MM-DD_dominio_titulo-da-pagina.png`, com o título em slug e cortado em 60 caracteres. Exemplo: `2026-08-13_notion-so_plano-editorial-agosto.png`.

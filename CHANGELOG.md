@@ -6,6 +6,12 @@ Cada plugin versiona no próprio `manifest.json`. As entradas abaixo são por pl
 
 ## full-page-capture
 
+### [0.1.2] — 2026-08-14
+
+#### Corrigido
+- **`Cannot read properties of undefined (reading 'onChanged')`.** O download estava sendo pedido de dentro do documento offscreen, e um documento offscreen só enxerga `chrome.runtime` — `chrome.downloads` é indefinido lá. Agora o offscreen desenha e devolve a imagem; quem grava o arquivo é o processo de fundo, que fecha o offscreen apenas depois da gravação terminar.
+- A mensagem de sucesso passa a dizer quantas telas entraram e o tamanho do arquivo.
+
 ### [0.1.1] — 2026-08-14
 
 #### Corrigido

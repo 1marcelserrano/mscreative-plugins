@@ -35,6 +35,60 @@ function avisar(atual, total) {
   chrome.runtime.sendMessage({ type: 'fpc:progress', atual, total }).catch(() => {});
 }
 
+const TETO_DOWNLOAD_MS = 20000;
+
+// O ouvinte entra ANTES do download: um blob local grava rápido demais e o
+// aviso de conclusão chega antes de haver quem escute.
+async function baixarEEsperar(url, filename) {
+  const vistos = new Map();
+  let alvo = null;
+  let terminar = null;
+
+  function avaliar(delta) {
+    if (delta.state?.current === 'complete') terminar?.(null);
+    if (delta.state?.current === 'interrupted') {
+      terminar?.(
+        new Error(`o download foi interrompido (${delta.error?.current ?? 'motivo desconhecido'})`),
+      );
+    }
+  }
+
+  function ouvir(delta) {
+    vistos.set(delta.id, delta);
+    if (alvo !== null && delta.id === alvo) avaliar(delta);
+  }
+
+  chrome.downloads.onChanged.addListener(ouvir);
+  try {
+    const id = await chrome.downloads.download({ url, filename, saveAs: false });
+    alvo = id;
+
+    const [registro] = await chrome.downloads.search({ id });
+    if (registro?.state === 'complete') return id;
+    if (registro?.state === 'interrupted') {
+      throw new Error(`o download foi interrompido (${registro.error ?? 'motivo desconhecido'})`);
+    }
+
+    const adiantado = vistos.get(id);
+    if (adiantado?.state?.current === 'complete') return id;
+
+    await new Promise((resolve, reject) => {
+      const relogio = setTimeout(
+        () => reject(new Error('o download não terminou a tempo')),
+        TETO_DOWNLOAD_MS,
+      );
+      terminar = (erro) => {
+        clearTimeout(relogio);
+        erro ? reject(erro) : resolve();
+      };
+      if (adiantado) avaliar(adiantado);
+    });
+    return id;
+  } finally {
+    chrome.downloads.onChanged.removeListener(ouvir);
+  }
+}
+
 const CONTENT_FILES = [
   'src/content/scroller.js',
   'src/content/overlay.js',
@@ -130,6 +184,7 @@ async function handleStart(tabId) {
   const paradas = [];
   let truncado = false;
   let avisoTamanho = null;
+  let bytes = 0;
   try {
     let anterior = -1;
     for (let index = 0; index < MAX_TELAS; index++) {
@@ -184,17 +239,25 @@ async function handleStart(tabId) {
       alvo: 'offscreen',
       type: 'fpc:off:finish',
       plan,
-      filename,
     });
     if (resposta?.erro) throw new Error(resposta.erro);
-    if (!resposta?.ok) {
+    if (!resposta?.ok || !resposta.url) {
       throw new Error('A montagem não respondeu. O documento de desenho pode ter sido encerrado.');
     }
+
+    // O download acontece aqui, não no offscreen: só o processo de fundo
+    // enxerga chrome.downloads. A URL do blob vive enquanto o offscreen viver,
+    // por isso ele só é fechado depois que o arquivo termina de gravar.
+    await baixarEEsperar(resposta.url, filename);
+    bytes = resposta.bytes;
   } finally {
     await closeOffscreen();
   }
 
   const limite = truncado ? ` (parei em ${MAX_TELAS} telas — a página continua além disso)` : '';
   const extra = avisoTamanho ? ` ${avisoTamanho}` : '';
-  return { message: `Salvo: ${filename}${limite}${extra}` };
+  const tamanho = bytes ? ` · ${(bytes / 1048576).toFixed(1)} MB` : '';
+  return {
+    message: `Salvo em Downloads: ${filename} · ${paradas.length} telas${tamanho}${limite}${extra}`,
+  };
 }
