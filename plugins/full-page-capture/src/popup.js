@@ -11,6 +11,16 @@ chrome.runtime.onMessage.addListener((message) => {
   setStatus(`Tela ${message.atual} de ${message.total}...`);
 });
 
+// Este popup fecha no clique que confirma o alvo na página, então o resultado
+// da última captura vive no processo de fundo e é recuperado ao reabrir.
+(async () => {
+  const ultimo = await chrome.runtime.sendMessage({ type: 'fpc:status' }).catch(() => null);
+  if (!ultimo) return;
+  const minutos = Math.round((Date.now() - ultimo.quando) / 60000);
+  const quando = minutos < 1 ? 'agora' : `há ${minutos} min`;
+  setStatus(`${ultimo.message} (${quando})`, ultimo.erro ? 'erro' : 'info');
+})();
+
 startButton.addEventListener('click', async () => {
   startButton.disabled = true;
   setStatus('Preparando...');

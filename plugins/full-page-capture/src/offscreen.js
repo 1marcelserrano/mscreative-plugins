@@ -43,30 +43,76 @@ async function desenharEBaixar(plan, filename) {
   }
 
   const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+  if (!blob) throw new Error('o navegador não conseguiu gerar a imagem (tamanho grande demais?)');
+
   const url = URL.createObjectURL(blob);
   try {
+    // O ouvinte entra ANTES do download: um blob local grava rápido demais e o
+    // aviso de conclusão chega antes de haver quem escute.
+    const espera = esperarDownload();
     const id = await chrome.downloads.download({ url, filename, saveAs: false });
-    await esperarDownload(id);
-    return { ok: true, filename };
+    await espera.resolverPara(id);
+    return { ok: true, filename, bytes: blob.size };
   } finally {
     URL.revokeObjectURL(url);
     descartar();
   }
 }
 
-function esperarDownload(id) {
-  return new Promise((resolve, reject) => {
-    function ouvir(delta) {
-      if (delta.id !== id) return;
-      if (delta.state?.current === 'complete') {
-        chrome.downloads.onChanged.removeListener(ouvir);
-        resolve();
-      }
-      if (delta.state?.current === 'interrupted') {
-        chrome.downloads.onChanged.removeListener(ouvir);
-        reject(new Error('o download foi interrompido'));
-      }
+const TETO_DOWNLOAD_MS = 20000;
+
+function esperarDownload() {
+  const vistos = new Map();
+  let alvo = null;
+  let terminar = null;
+
+  function ouvir(delta) {
+    vistos.set(delta.id, delta);
+    if (alvo !== null && delta.id === alvo) avaliar(delta);
+  }
+
+  function avaliar(delta) {
+    if (delta.state?.current === 'complete') terminar?.(null);
+    if (delta.state?.current === 'interrupted') {
+      terminar?.(new Error(`o download foi interrompido (${delta.error?.current ?? 'motivo desconhecido'})`));
     }
-    chrome.downloads.onChanged.addListener(ouvir);
-  });
+  }
+
+  chrome.downloads.onChanged.addListener(ouvir);
+
+  return {
+    async resolverPara(id) {
+      alvo = id;
+      try {
+        // Se o aviso chegou antes de sabermos o id, ele está guardado aqui.
+        const adiantado = vistos.get(id);
+        if (adiantado) {
+          let erro = null;
+          terminar = (e) => { erro = e; };
+          avaliar(adiantado);
+          if (erro) throw erro;
+          if (adiantado.state?.current === 'complete') return;
+        }
+        // E se o download terminou antes de qualquer evento, o registro já conta.
+        const [registro] = await chrome.downloads.search({ id });
+        if (registro?.state === 'complete') return;
+        if (registro?.state === 'interrupted') {
+          throw new Error(`o download foi interrompido (${registro.error ?? 'motivo desconhecido'})`);
+        }
+
+        await new Promise((resolve, reject) => {
+          const relogio = setTimeout(
+            () => reject(new Error('o download não terminou a tempo')),
+            TETO_DOWNLOAD_MS,
+          );
+          terminar = (erro) => {
+            clearTimeout(relogio);
+            erro ? reject(erro) : resolve();
+          };
+        });
+      } finally {
+        chrome.downloads.onChanged.removeListener(ouvir);
+      }
+    },
+  };
 }

@@ -44,11 +44,38 @@ const CONTENT_FILES = [
   'src/content/main.js',
 ];
 
+// O popup fecha assim que você clica na página para confirmar o alvo. Todo
+// resultado fica guardado aqui e aparece no badge, senão o erro morre com ele.
+let ultimoResultado = null;
+
+function registrar(message, erro = false) {
+  ultimoResultado = { message, erro, quando: Date.now() };
+  chrome.action.setBadgeText({ text: erro ? '!' : 'ok' });
+  chrome.action.setBadgeBackgroundColor({ color: erro ? '#a83232' : '#4a7c2f' });
+  if (erro) console.error('[full-page-capture]', message);
+  else console.log('[full-page-capture]', message);
+}
+
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type === 'fpc:status') {
+    sendResponse(ultimoResultado);
+    return true;
+  }
   if (message?.type !== 'fpc:start') return false;
+
+  chrome.action.setBadgeText({ text: '...' });
+  chrome.action.setBadgeBackgroundColor({ color: '#4a463f' });
+
   handleStart(message.tabId)
-    .then(sendResponse)
-    .catch((error) => sendResponse({ message: String(error?.message ?? error) }));
+    .then((r) => {
+      registrar(r.message);
+      sendResponse(r);
+    })
+    .catch((error) => {
+      const texto = String(error?.message ?? error);
+      registrar(texto, true);
+      sendResponse({ message: texto, erro: true });
+    });
   return true;
 });
 
@@ -116,12 +143,17 @@ async function handleStart(tabId) {
       anterior = parada.scrollTop;
 
       const dataUrl = await capturarComRetentativa(tab.windowId);
-      await chrome.runtime.sendMessage({
+      const guardado = await chrome.runtime.sendMessage({
         alvo: 'offscreen',
         type: 'fpc:off:frame',
         index: paradas.length,
         dataUrl,
       });
+      if (!guardado?.ok) {
+        throw new Error(
+          `A tela ${paradas.length + 1} não chegou na montagem: ${guardado?.erro ?? 'sem resposta'}`,
+        );
+      }
       paradas.push({ scrollTop: parada.scrollTop, rect: parada.rect });
       avisar(paradas.length, Math.ceil(parada.total / Math.max(parada.rect.height, 1)));
 
@@ -155,6 +187,9 @@ async function handleStart(tabId) {
       filename,
     });
     if (resposta?.erro) throw new Error(resposta.erro);
+    if (!resposta?.ok) {
+      throw new Error('A montagem não respondeu. O documento de desenho pode ter sido encerrado.');
+    }
   } finally {
     await closeOffscreen();
   }
