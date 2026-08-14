@@ -56,8 +56,10 @@ A costura usa a rolagem que **de fato** aconteceu, não a que foi pedida. Págin
 ## Desenvolvimento
 
 ```bash
-node --test "plugins/full-page-capture/test/**/*.test.mjs"
+node --test plugins/full-page-capture/test/*.test.mjs
 ```
+
+Precisa de Node 20 ou superior. Nenhuma dependência: o runner de testes é o do próprio Node.
 
 Os testes cobrem as três funções puras onde os erros passam despercebidos: o plano da costura, a pontuação dos candidatos a scroller e o nome do arquivo. As quatro páginas de `test/fixtures/` reproduzem os casos difíceis — painel interno, cabeçalho grudento, carregamento preguiçoso e página muito comprida.
 

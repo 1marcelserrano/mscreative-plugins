@@ -7,5 +7,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - run: node --test "plugins/full-page-capture/test/**/*.test.mjs"
+          node-version: '22'
+      # Sem aspas de propósito: quem expande é o shell. O glob nativo do
+      # `node --test` só existe do Node 21 em diante.
+      - run: node --test plugins/full-page-capture/test/*.test.mjs
