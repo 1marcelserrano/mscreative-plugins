@@ -15,7 +15,7 @@ O primeiro plugin transcreve um carrossel inteiro do Instagram — os 15 slides 
 | Plugin | Versão | O que faz | Tipo |
 |---|---|---|---|
 | [`instagram-carousel-transcriber`](./plugins/instagram-carousel-transcriber/) | v0.2.0 | Lê todos os slides de um carrossel do Instagram e baixa um `.md` com o texto de cada slide + a legenda. OCR local grátis por padrão; modo Claude opcional pra qualidade alta. | Extensão Chrome (MV3) |
-| [`full-page-capture`](./plugins/full-page-capture/) | v0.1.0 | Fotografa a página inteira num PNG, inclusive quando quem rola é um painel interno. Cabeçalho fixo aparece uma vez, carregamento preguiçoso não deixa buraco. | Extensão Chrome (MV3) |
+| [`full-page-capture`](./plugins/full-page-capture/) | v0.1.1 | Fotografa a página inteira num PNG, inclusive quando quem rola é um painel interno. Cabeçalho fixo aparece uma vez, carregamento preguiçoso não deixa buraco. | Extensão Chrome (MV3) |
 
 ## Como funciona
 

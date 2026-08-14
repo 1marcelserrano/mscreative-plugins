@@ -6,6 +6,13 @@ Cada plugin versiona no próprio `manifest.json`. As entradas abaixo são por pl
 
 ## full-page-capture
 
+### [0.1.1] — 2026-08-14
+
+#### Corrigido
+- **A captura rolava a página inteira e travava sem salvar nada.** O ouvinte de conclusão do download entrava *depois* do download começar; como a imagem vem da memória, a gravação termina rápido demais e o aviso chegava antes de haver quem escutasse. Agora o ouvinte entra antes, avisos adiantados ficam guardados, o registro do download serve de rede de segurança e existe teto de 20 s.
+- **Erro nenhum aparecia.** O popup fecha no clique que confirma o alvo na página, e era só nele que as mensagens saíam. O resultado passa a viver no processo de fundo: selo colorido no ícone (`...`, `ok`, `!`) e a última mensagem ao reabrir o popup.
+- Cada tela enviada para a montagem tem a resposta conferida na hora, em vez de falhar calada e só aparecer como "quadro não chegou" no fim.
+
 ### [0.1.0] — 2026-08-13
 
 #### Adicionado
