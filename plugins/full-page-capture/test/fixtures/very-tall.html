@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Muito comprida</title>
+    <style>
+      body { margin: 0; font: 16px/1.5 system-ui, sans-serif; background: #f4f1ea; }
+      .faixa { height: 400px; display: grid; place-items: center; border-bottom: 1px solid #ccc; }
+    </style>
+  </head>
+  <body>
+    <main id="main"></main>
+    <script>
+      const main = document.getElementById('main');
+      for (let i = 1; i <= 120; i++) {
+        const faixa = document.createElement('div');
+        faixa.className = 'faixa';
+        faixa.textContent = `Faixa ${i} de 120 — total acima de 48.000 pixels`;
+        main.append(faixa);
+      }
+    </script>
+  </body>
+</html>

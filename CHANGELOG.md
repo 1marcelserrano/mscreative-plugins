@@ -4,6 +4,32 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · Versiona
 
 Cada plugin versiona no próprio `manifest.json`. As entradas abaixo são por plugin.
 
+## full-page-capture
+
+### [0.1.2] — 2026-08-14
+
+#### Corrigido
+- **`Cannot read properties of undefined (reading 'onChanged')`.** O download estava sendo pedido de dentro do documento offscreen, e um documento offscreen só enxerga `chrome.runtime` — `chrome.downloads` é indefinido lá. Agora o offscreen desenha e devolve a imagem; quem grava o arquivo é o processo de fundo, que fecha o offscreen apenas depois da gravação terminar.
+- A mensagem de sucesso passa a dizer quantas telas entraram e o tamanho do arquivo.
+
+### [0.1.1] — 2026-08-14
+
+#### Corrigido
+- **A captura rolava a página inteira e travava sem salvar nada.** O ouvinte de conclusão do download entrava *depois* do download começar; como a imagem vem da memória, a gravação termina rápido demais e o aviso chegava antes de haver quem escutasse. Agora o ouvinte entra antes, avisos adiantados ficam guardados, o registro do download serve de rede de segurança e existe teto de 20 s.
+- **Erro nenhum aparecia.** O popup fecha no clique que confirma o alvo na página, e era só nele que as mensagens saíam. O resultado passa a viver no processo de fundo: selo colorido no ícone (`...`, `ok`, `!`) e a última mensagem ao reabrir o popup.
+- Cada tela enviada para a montagem tem a resposta conferida na hora, em vez de falhar calada e só aparecer como "quadro não chegou" no fim.
+
+### [0.1.0] — 2026-08-13
+
+#### Adicionado
+- Primeira versão. Captura de página inteira por costura de rolagem: cada tela é fotografada de verdade, nada é reconstruído a partir do DOM.
+- **Detecta o container que realmente rola** e confirma o alvo antes de capturar. Em Gmail, Notion e painéis administrativos, quem rola é um `div`, não a janela.
+- **Elementos fixos e grudentos entram só no primeiro quadro.** Cabeçalho aparece uma vez; barra de cookies e widget de chat não se repetem ao longo da imagem.
+- **Espera o conteúdo assentar a cada parada** — imagens decodificadas e DOM em silêncio, com teto de tempo.
+- Costura posicionada pela rolagem efetiva, não pela pretendida: página com `scroll-snap` ou que trava no fim continua alinhada.
+- Limite de 60 telas e limite de canvas do navegador com aviso explícito. Truncamento nunca é silencioso.
+- Três funções puras (plano da costura, pontuação de candidatos, nome do arquivo) cobertas por `node --test`, sem nenhuma dependência.
+
 ## instagram-carousel-transcriber
 
 ### [0.2.0] — 2026-06-18
